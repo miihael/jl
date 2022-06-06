@@ -34,6 +34,7 @@ type LogfmtPrinter struct {
 	// fields in the JSON log entry.
 	PreferredFields []string
 	KVDelimiter     string
+	RecordDelimiter string
 	// DisableColor disables ANSI color escape sequences.
 	DisableColor bool
 }
@@ -44,6 +45,7 @@ func NewLogfmtPrinter(w io.Writer) *LogfmtPrinter {
 		Out:             w,
 		PreferredFields: DefaultLogfmtPreferredFields,
 		KVDelimiter:     "=",
+		RecordDelimiter: " ",
 	}
 }
 
@@ -58,7 +60,7 @@ func (p *LogfmtPrinter) Print(input *Entry) {
 	sortedFields := append(entry.preferredFields, entry.sortedFields...)
 	for i, field := range sortedFields {
 		if i != 0 {
-			fmt.Fprint(p.Out, " ")
+			fmt.Fprint(p.Out, p.RecordDelimiter)
 		}
 		key := field.Key + p.KVDelimiter
 		if !p.DisableColor {
