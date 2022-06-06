@@ -13,6 +13,8 @@ var DefaultLogfmtPreferredFields = []string{
 	"timestamp",
 	"time",
 	"ts",
+	"t",
+	"lvl",
 	"level",
 	"log_level",
 	"thread",
@@ -22,6 +24,8 @@ var DefaultLogfmtPreferredFields = []string{
 	"exceptions",
 }
 
+var DefaultLevelFields = []string{"level", "lvl"}
+
 // LogfmtPrinter prints log entries in the logfmt format.
 type LogfmtPrinter struct {
 	// Out is the writer where formatted logs are written to.
@@ -29,6 +33,7 @@ type LogfmtPrinter struct {
 	// PreferredFields is an order list of top-level keys that the logfmt formatter will display ahead of other
 	// fields in the JSON log entry.
 	PreferredFields []string
+	KVDelimiter     string
 	// DisableColor disables ANSI color escape sequences.
 	DisableColor bool
 }
@@ -38,6 +43,7 @@ func NewLogfmtPrinter(w io.Writer) *LogfmtPrinter {
 	return &LogfmtPrinter{
 		Out:             w,
 		PreferredFields: DefaultLogfmtPreferredFields,
+		KVDelimiter:     "=",
 	}
 }
 
@@ -54,11 +60,11 @@ func (p *LogfmtPrinter) Print(input *Entry) {
 		if i != 0 {
 			fmt.Fprint(p.Out, " ")
 		}
-		key := field.Key
+		key := field.Key + p.KVDelimiter
 		if !p.DisableColor {
-			key = ColorText(color, field.Key)
+			key = ColorText(color, key)
 		}
-		fmt.Fprintf(p.Out, "%s=%s", key, toString(field.Value))
+		fmt.Fprintf(p.Out, "%s%s", key, toString(field.Value))
 	}
 	fmt.Fprintln(p.Out)
 }
@@ -104,8 +110,11 @@ func newLogfmtEntry(m *Entry, preferredFields []string) *logfmtEntry {
 
 func (e *logfmtEntry) Color() Color {
 	level := "info"
-	if levelField, ok := e.partials["level"]; ok {
-		level = toString(levelField)
+	for _, levelFieldName := range DefaultLevelFields {
+		if levelField, ok := e.partials[levelFieldName]; ok {
+			level = toString(levelField)
+			break
+		}
 	}
 	if color, ok := LevelColors[strings.ToLower(level)]; ok {
 		return color
