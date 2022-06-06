@@ -41,7 +41,7 @@ var DefaultCompactPrinterFieldFmt = []FieldFmt{{
 	Transformers: []Transformer{Truncate(4), UpperCase, ColorMap(LevelColors)},
 }, {
 	Name:         "time",
-	Finders:      []FieldFinder{ByNames("timestamp", "time", "ts")},
+	Finders:      []FieldFinder{ByNames("timestamp", "time", "ts", "t")},
 	Transformers: []Transformer{UnixTimeConvert},
 }, {
 	Name:         "thread",
@@ -51,7 +51,11 @@ var DefaultCompactPrinterFieldFmt = []FieldFmt{{
 	Transformers: []Transformer{Ellipsize(20), Format("%s|"), LeftPad(21), ColorSequence(AllColors)},
 }, {
 	Name:    "message",
-	Finders: []FieldFinder{ByNames("message", "msg", "textPayload", "jsonPayload.message")},
+	Finders: []FieldFinder{ByNames("message", "msg", "textPayload", "jsonPayload.message", "Msg")},
+}, {
+	Name:         "uri",
+	Finders:      []FieldFinder{ByNames("meta.request.target", "uri")},
+	Transformers: []Transformer{ColorSequence(AllColors)},
 }, {
 	Name:     "errors",
 	Finders:  []FieldFinder{LogrusErrorFinder, ByNames("exceptions", "exception", "error")},
