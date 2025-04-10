@@ -37,7 +37,7 @@ type FieldFmt struct {
 // for most types of logs.
 var DefaultCompactPrinterFieldFmt = []FieldFmt{{
 	Name:         "level",
-	Finders:      []FieldFinder{ByNames("level", "severity", "log_level")},
+	Finders:      []FieldFinder{ByNames("lvl", "level", "severity", "log_level")},
 	Transformers: []Transformer{Truncate(4), UpperCase, ColorMap(LevelColors)},
 }, {
 	Name:         "time",
@@ -45,7 +45,8 @@ var DefaultCompactPrinterFieldFmt = []FieldFmt{{
 	Transformers: []Transformer{UnixTimeConvert},
 }, {
 	Name:         "thread",
-	Transformers: []Transformer{Ellipsize(16), Format("[%s]"), RightPad(18), ColorSequence(AllColors)},
+	Finders:      []FieldFinder{ByNames("meta.correlation_id")},
+	Transformers: []Transformer{Format("[%s]"), ColorSequence(AllColors)},
 }, {
 	Name:         "logger",
 	Transformers: []Transformer{Ellipsize(20), Format("%s|"), LeftPad(21), ColorSequence(AllColors)},
@@ -54,8 +55,8 @@ var DefaultCompactPrinterFieldFmt = []FieldFmt{{
 	Finders: []FieldFinder{ByNames("message", "msg", "textPayload", "jsonPayload.message", "Msg")},
 }, {
 	Name:         "uri",
-	Finders:      []FieldFinder{ByNames("meta.request.target", "uri")},
-	Transformers: []Transformer{ColorSequence(AllColors)},
+	Finders:      []FieldFinder{ByNames("meta.target")},
+	Transformers: []Transformer{Format("uri:%s"), ColorSequence(AllColors)},
 }, {
 	Name:     "errors",
 	Finders:  []FieldFinder{LogrusErrorFinder, ByNames("exceptions", "exception", "error")},

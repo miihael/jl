@@ -21,6 +21,7 @@ var DefaultLogfmtPreferredFields = []string{
 	"logger",
 	"message",
 	"msg",
+	"Msg",
 	"exceptions",
 }
 
